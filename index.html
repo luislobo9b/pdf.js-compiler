@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>pdf.js iife</title>
+	<script src="dist/pdf.iife.min.js"></script>
+	<script src="dist/pdf.worker.iife.min.js"></script>
+</head>
+
+<body>
+	<input id="fileUploader" type="file" accept="application/pdf" />
+	<p>
+		Number of pages: <span id="pageCount"></span>
+	</p>
+
+	<script>
+		const inputFileUploader = document.querySelector("#fileUploader"),
+			pageCountElement = document.querySelector("#pageCount")
+
+		inputFileUploader.addEventListener("change", ({ target }) => {
+			if (!target.files[0]) {
+				pageCountElement.textContent = ""
+				return
+			}
+			const reader = new FileReader()
+
+			reader.addEventListener("load", async () => {
+				const buffer = reader.result
+				const pdf = await pdfjsLib.getDocument({
+					data: new Uint8Array(buffer)
+				}).promise
+				const { numPages } = pdf
+				pageCountElement.textContent = numPages
+			})
+
+			reader.readAsArrayBuffer(target.files[0])
+		})
+	</script>
+</body>
+
+</html>
